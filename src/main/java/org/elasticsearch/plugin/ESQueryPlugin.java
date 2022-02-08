@@ -14,11 +14,10 @@
 
 package org.elasticsearch.plugin;
 
-import org.elasticsearch.mysynonym.SynonymMatchBuilder;
+import org.elasticsearch.synonym.SynonymMatchQueryBuilder;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.plugins.SearchPlugin;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class ESQueryPlugin extends Plugin implements SearchPlugin {
     public List<QuerySpec<?>> getQueries() {
 //        return singletonList(new QuerySpec<>(PositionMatchQuery.NAME, PositionMatchQueryBuilder::new, PositionMatchQueryBuilder::fromXContent));
         return Collections.singletonList(
-                new QuerySpec<>(SynonymMatchBuilder.NAME, SynonymMatchBuilder::new, SynonymMatchBuilder::fromXContent)
+                new QuerySpec<>(SynonymMatchQueryBuilder.NAME, SynonymMatchQueryBuilder::new, SynonymMatchQueryBuilder::fromXContent)
         );
     }
 
