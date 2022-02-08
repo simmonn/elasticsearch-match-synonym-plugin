@@ -72,7 +72,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
     public static final ParseField GENERATE_SYNONYMS_PHRASE_QUERY = new ParseField("auto_generate_synonyms_phrase_query");
     public static final ParseField SYNONYMS_BOOST_FIELD = new ParseField("synonym_boost");
     /** The name for the match query */
-    public static final String NAME = "match_synonym";
+    public static final String NAME = "match_deluxe";
 
     /** The default mode terms are combined in a match query */
     public static final Operator DEFAULT_OPERATOR = Operator.OR;
