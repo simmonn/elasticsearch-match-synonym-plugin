@@ -8,7 +8,7 @@ PUT /test_synonym
       "analysis": {
         "analyzer": {
           "match_syn": {
-            "tokenizer": "whitespace",
+            "tokenizer": "standard",
             "filter": [
               "synonym"
             ]
