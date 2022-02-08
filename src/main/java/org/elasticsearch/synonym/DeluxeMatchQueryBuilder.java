@@ -41,13 +41,13 @@ import org.elasticsearch.index.search.MatchQuery;
 import java.io.IOException;
 import java.util.Objects;
 
-import static org.elasticsearch.synonym.SynonymMatchQuery.DEFAULT_SYNONYM_BOOST;
+import static org.elasticsearch.synonym.DeluxeMatchQuery.DEFAULT_SYNONYM_BOOST;
 
 /**
  * Match query is a query that analyzes the text and constructs a query as the
  * result of the analysis.
  */
-public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQueryBuilder> {
+public class DeluxeMatchQueryBuilder extends AbstractQueryBuilder<DeluxeMatchQueryBuilder> {
 
     private static final String CUTOFF_FREQUENCY_DEPRECATION_MSG = "you can omit this option, " +
             "the [match] query can skip block of documents efficiently if the total number of hits is not tracked";
@@ -99,7 +99,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
 
     private boolean lenient = MatchQuery.DEFAULT_LENIENCY;
 
-    private SynonymMatchQuery.ZeroTermsQuery zeroTermsQuery = SynonymMatchQuery.DEFAULT_ZERO_TERMS_QUERY;
+    private DeluxeMatchQuery.ZeroTermsQuery zeroTermsQuery = DeluxeMatchQuery.DEFAULT_ZERO_TERMS_QUERY;
 
     private Float cutoffFrequency = null;
 
@@ -110,7 +110,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
     /**
      * Constructs a new match query.
      */
-    public SynonymMatchQueryBuilder(String fieldName, Object value) {
+    public DeluxeMatchQueryBuilder(String fieldName, Object value) {
         if (fieldName == null) {
             throw new IllegalArgumentException("[" + NAME + "] requires fieldName");
         }
@@ -124,7 +124,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
     /**
      * Read from a stream.
      */
-    public SynonymMatchQueryBuilder(StreamInput in) throws IOException {
+    public DeluxeMatchQueryBuilder(StreamInput in) throws IOException {
         super(in);
         fieldName = in.readString();
         value = in.readGenericValue();
@@ -139,7 +139,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
         maxExpansions = in.readVInt();
         fuzzyTranspositions = in.readBoolean();
         lenient = in.readBoolean();
-        zeroTermsQuery = SynonymMatchQuery.ZeroTermsQuery.readFromStream(in);
+        zeroTermsQuery = DeluxeMatchQuery.ZeroTermsQuery.readFromStream(in);
         // optional fields
         analyzer = in.readOptionalString();
         minimumShouldMatch = in.readOptionalString();
@@ -191,7 +191,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
     }
 
     /** Sets the operator to use when using a boolean query. Defaults to {@code OR}. */
-    public SynonymMatchQueryBuilder operator(Operator operator) {
+    public DeluxeMatchQueryBuilder operator(Operator operator) {
         if (operator == null) {
             throw new IllegalArgumentException("[" + NAME + "] requires operator to be non-null");
         }
@@ -208,7 +208,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
      * Explicitly set the analyzer to use. Defaults to use explicit mapping config for the field, or, if not
      * set, the default search analyzer.
      */
-    public SynonymMatchQueryBuilder analyzer(String analyzer) {
+    public DeluxeMatchQueryBuilder analyzer(String analyzer) {
         this.analyzer = analyzer;
         return this;
     }
@@ -219,7 +219,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
     }
 
     /** Sets the fuzziness used when evaluated to a fuzzy query type. Defaults to "AUTO". */
-    public SynonymMatchQueryBuilder fuzziness(Object fuzziness) {
+    public DeluxeMatchQueryBuilder fuzziness(Object fuzziness) {
         this.fuzziness = Fuzziness.build(fuzziness);
         return this;
     }
@@ -234,7 +234,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
      * @param prefixLength non-negative length of prefix
      * @throws IllegalArgumentException in case the prefix is negative
      */
-    public SynonymMatchQueryBuilder prefixLength(int prefixLength) {
+    public DeluxeMatchQueryBuilder prefixLength(int prefixLength) {
         if (prefixLength < 0 ) {
             throw new IllegalArgumentException("[" + NAME + "] requires prefix length to be non-negative.");
         }
@@ -252,7 +252,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
     /**
      * When using fuzzy or prefix type query, the number of term expansions to use.
      */
-    public SynonymMatchQueryBuilder maxExpansions(int maxExpansions) {
+    public DeluxeMatchQueryBuilder maxExpansions(int maxExpansions) {
         if (maxExpansions <= 0 ) {
             throw new IllegalArgumentException("[" + NAME + "] requires maxExpansions to be positive.");
         }
@@ -272,10 +272,10 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
      * maximum threshold of a terms document frequency to be considered a low
      * frequency term.
      *
-     * @deprecated see {@link SynonymMatchQueryBuilder#CUTOFF_FREQUENCY_FIELD} for more details
+     * @deprecated see {@link DeluxeMatchQueryBuilder#CUTOFF_FREQUENCY_FIELD} for more details
      */
     @Deprecated
-    public SynonymMatchQueryBuilder cutoffFrequency(float cutoff) {
+    public DeluxeMatchQueryBuilder cutoffFrequency(float cutoff) {
         this.cutoffFrequency = cutoff;
         return this;
     }
@@ -286,7 +286,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
     }
 
     /** Sets optional minimumShouldMatch value to apply to the query */
-    public SynonymMatchQueryBuilder minimumShouldMatch(String minimumShouldMatch) {
+    public DeluxeMatchQueryBuilder minimumShouldMatch(String minimumShouldMatch) {
         this.minimumShouldMatch = minimumShouldMatch;
         return this;
     }
@@ -297,7 +297,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
     }
 
     /** Sets the fuzzy_rewrite parameter controlling how the fuzzy query will get rewritten */
-    public SynonymMatchQueryBuilder fuzzyRewrite(String fuzzyRewrite) {
+    public DeluxeMatchQueryBuilder fuzzyRewrite(String fuzzyRewrite) {
         this.fuzzyRewrite = fuzzyRewrite;
         return this;
     }
@@ -317,7 +317,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
      * switch to classic Levenshtein distance.<br>
      * If not set, Damerau-Levenshtein distance metric will be used.
      */
-    public SynonymMatchQueryBuilder fuzzyTranspositions(boolean fuzzyTranspositions) {
+    public DeluxeMatchQueryBuilder fuzzyTranspositions(boolean fuzzyTranspositions) {
         this.fuzzyTranspositions = fuzzyTranspositions;
         return this;
     }
@@ -330,7 +330,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
     /**
      * Sets whether format based failures will be ignored.
      */
-    public SynonymMatchQueryBuilder lenient(boolean lenient) {
+    public DeluxeMatchQueryBuilder lenient(boolean lenient) {
         this.lenient = lenient;
         return this;
     }
@@ -347,7 +347,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
      * Defaults to {@link MatchQuery.ZeroTermsQuery#NONE}, but can be set to
      * {@link MatchQuery.ZeroTermsQuery#ALL} instead.
      */
-    public SynonymMatchQueryBuilder zeroTermsQuery(SynonymMatchQuery.ZeroTermsQuery zeroTermsQuery) {
+    public DeluxeMatchQueryBuilder zeroTermsQuery(DeluxeMatchQuery.ZeroTermsQuery zeroTermsQuery) {
         if (zeroTermsQuery == null) {
             throw new IllegalArgumentException("[" + NAME + "] requires zeroTermsQuery to be non-null");
         }
@@ -358,12 +358,12 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
     /**
      * Returns the setting for handling zero terms queries.
      */
-    public SynonymMatchQuery.ZeroTermsQuery zeroTermsQuery() {
+    public DeluxeMatchQuery.ZeroTermsQuery zeroTermsQuery() {
         return this.zeroTermsQuery;
     }
 
 
-    public SynonymMatchQueryBuilder autoGenerateSynonymsPhraseQuery(boolean enable) {
+    public DeluxeMatchQueryBuilder autoGenerateSynonymsPhraseQuery(boolean enable) {
         this.autoGenerateSynonymsPhraseQuery = enable;
         return this;
     }
@@ -380,7 +380,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
         return synonymBoost;
     }
 
-    public SynonymMatchQueryBuilder synonymBoost(float synonymBoost) {
+    public DeluxeMatchQueryBuilder synonymBoost(float synonymBoost) {
         this.synonymBoost = synonymBoost;
         return this;
     }
@@ -427,7 +427,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
             throw new QueryShardException(context, "[" + NAME + "] analyzer [" + analyzer + "] not found");
         }
 
-        SynonymMatchQuery matchQuery = new SynonymMatchQuery(context);
+        DeluxeMatchQuery matchQuery = new DeluxeMatchQuery(context);
         matchQuery.setOccur(operator.toBooleanClauseOccur());
         if (analyzer != null) {
             matchQuery.setAnalyzer(analyzer);
@@ -442,12 +442,12 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
         matchQuery.setZeroTermsQuery(zeroTermsQuery);
         matchQuery.setAutoGenerateSynonymsPhraseQuery(autoGenerateSynonymsPhraseQuery);
         matchQuery.setSynonymBoost(synonymBoost);
-        Query query = matchQuery.parse(SynonymMatchQuery.Type.BOOLEAN, fieldName, value);
+        Query query = matchQuery.parse(DeluxeMatchQuery.Type.BOOLEAN, fieldName, value);
         return Queries.maybeApplyMinimumShouldMatch(query, minimumShouldMatch);
     }
 
     @Override
-    protected boolean doEquals(SynonymMatchQueryBuilder other) {
+    protected boolean doEquals(DeluxeMatchQueryBuilder other) {
         return Objects.equals(fieldName, other.fieldName) &&
                 Objects.equals(value, other.value) &&
                 Objects.equals(operator, other.operator) &&
@@ -477,13 +477,13 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
         return NAME;
     }
 
-    public static SynonymMatchQueryBuilder fromXContent(XContentParser parser) throws IOException {
+    public static DeluxeMatchQueryBuilder fromXContent(XContentParser parser) throws IOException {
         String fieldName = null;
         Object value = null;
         float boost = AbstractQueryBuilder.DEFAULT_BOOST;
         String minimumShouldMatch = null;
         String analyzer = null;
-        Operator operator = SynonymMatchQueryBuilder.DEFAULT_OPERATOR;
+        Operator operator = DeluxeMatchQueryBuilder.DEFAULT_OPERATOR;
         Fuzziness fuzziness = null;
         int prefixLength = FuzzyQuery.defaultPrefixLength;
         int maxExpansion = FuzzyQuery.defaultMaxExpansions;
@@ -491,7 +491,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
         String fuzzyRewrite = null;
         boolean lenient = MatchQuery.DEFAULT_LENIENCY;
         Float cutOffFrequency = null;
-        SynonymMatchQuery.ZeroTermsQuery zeroTermsQuery = SynonymMatchQuery.DEFAULT_ZERO_TERMS_QUERY;
+        DeluxeMatchQuery.ZeroTermsQuery zeroTermsQuery = DeluxeMatchQuery.DEFAULT_ZERO_TERMS_QUERY;
         boolean autoGenerateSynonymsPhraseQuery = true;
         float synonymBoost = DEFAULT_SYNONYM_BOOST;
         String queryName = null;
@@ -534,9 +534,9 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
                         } else if (ZERO_TERMS_QUERY_FIELD.match(currentFieldName, parser.getDeprecationHandler())) {
                             String zeroTermsValue = parser.text();
                             if ("none".equalsIgnoreCase(zeroTermsValue)) {
-                                zeroTermsQuery = SynonymMatchQuery.ZeroTermsQuery.NONE;
+                                zeroTermsQuery = DeluxeMatchQuery.ZeroTermsQuery.NONE;
                             } else if ("all".equalsIgnoreCase(zeroTermsValue)) {
-                                zeroTermsQuery = SynonymMatchQuery.ZeroTermsQuery.ALL;
+                                zeroTermsQuery = DeluxeMatchQuery.ZeroTermsQuery.ALL;
                             } else {
                                 throw new ParsingException(parser.getTokenLocation(),
                                         "Unsupported zero_terms_query value [" + zeroTermsValue + "]");
@@ -567,7 +567,7 @@ public class SynonymMatchQueryBuilder extends AbstractQueryBuilder<SynonymMatchQ
             throw new ParsingException(parser.getTokenLocation(), "No text specified for text query");
         }
 
-        SynonymMatchQueryBuilder matchQuery = new SynonymMatchQueryBuilder(fieldName, value);
+        DeluxeMatchQueryBuilder matchQuery = new DeluxeMatchQueryBuilder(fieldName, value);
         matchQuery.operator(operator);
         matchQuery.analyzer(analyzer);
         matchQuery.minimumShouldMatch(minimumShouldMatch);

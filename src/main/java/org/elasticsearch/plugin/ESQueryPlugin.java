@@ -14,20 +14,22 @@
 
 package org.elasticsearch.plugin;
 
-import org.elasticsearch.synonym.SynonymMatchQueryBuilder;
+import org.elasticsearch.synonym.DeluxeMatchQueryBuilder;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.plugins.SearchPlugin;
 
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * 插件注册入口
+ */
 public class ESQueryPlugin extends Plugin implements SearchPlugin {
 
     @Override
     public List<QuerySpec<?>> getQueries() {
-//        return singletonList(new QuerySpec<>(PositionMatchQuery.NAME, PositionMatchQueryBuilder::new, PositionMatchQueryBuilder::fromXContent));
         return Collections.singletonList(
-                new QuerySpec<>(SynonymMatchQueryBuilder.NAME, SynonymMatchQueryBuilder::new, SynonymMatchQueryBuilder::fromXContent)
+                new QuerySpec<>(DeluxeMatchQueryBuilder.NAME, DeluxeMatchQueryBuilder::new, DeluxeMatchQueryBuilder::fromXContent)
         );
     }
 

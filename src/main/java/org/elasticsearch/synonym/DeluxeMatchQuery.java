@@ -66,7 +66,11 @@ import java.util.function.Supplier;
 import static org.elasticsearch.common.lucene.search.Queries.newLenientFieldQuery;
 import static org.elasticsearch.common.lucene.search.Queries.newUnmappedFieldQuery;
 
-public class SynonymMatchQuery {
+/**
+ * 增强版match query,
+ * 增加对同义词权重的支持
+ */
+public class DeluxeMatchQuery {
 
 
     public enum Type implements Writeable {
@@ -179,7 +183,7 @@ public class SynonymMatchQuery {
 
     protected float synonymBoost = DEFAULT_SYNONYM_BOOST;
 
-    public SynonymMatchQuery(QueryShardContext context) {
+    public DeluxeMatchQuery(QueryShardContext context) {
         this.context = context;
     }
 
