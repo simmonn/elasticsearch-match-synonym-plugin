@@ -57,7 +57,6 @@ import org.elasticsearch.index.query.support.QueryParsers;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -204,7 +203,7 @@ public class DeluxeMatchQuery {
         Analyzer analyzer = getAnalyzer(fieldType, type == Type.PHRASE || type == Type.PHRASE_PREFIX);
         assert analyzer != null;
 
-        SynonymMatchQueryBuilder builder = new SynonymMatchQueryBuilder(analyzer, fieldType, enablePositionIncrements, autoGenerateSynonymsPhraseQuery);
+        DeluxeMatchQueryBuilder builder = new DeluxeMatchQueryBuilder(analyzer, fieldType, enablePositionIncrements, autoGenerateSynonymsPhraseQuery);
 
         /*
          * If a keyword analyzer is used, we know that further analysis isn't
@@ -225,7 +224,7 @@ public class DeluxeMatchQuery {
         return parseInternal(type, fieldName, builder, value);
     }
 
-    protected final Query parseInternal(Type type, String fieldName, SynonymMatchQueryBuilder builder, Object value) throws IOException {
+    protected final Query parseInternal(Type type, String fieldName, DeluxeMatchQueryBuilder builder, Object value) throws IOException {
         final Query query;
         switch (type) {
             case BOOLEAN:
@@ -255,7 +254,7 @@ public class DeluxeMatchQuery {
         return query == null ? zeroTermsQuery() : query;
     }
 
-    private Query createCommonTermsQuery(SynonymMatchQueryBuilder builder, String field, String queryText,
+    private Query createCommonTermsQuery(DeluxeMatchQueryBuilder builder, String field, String queryText,
                                          Occur highFreqOccur, Occur lowFreqOccur, float maxTermFrequency) {
         Query booleanQuery = builder.createBooleanQuery(field, queryText, lowFreqOccur);
         if (booleanQuery != null && booleanQuery instanceof BooleanQuery) {
@@ -300,14 +299,14 @@ public class DeluxeMatchQuery {
         }
     }
 
-    class SynonymMatchQueryBuilder extends QueryBuilder {
+    class DeluxeMatchQueryBuilder extends QueryBuilder {
         private final MappedFieldType fieldType;
 
         /**
          * Creates a new QueryBuilder using the given analyzer.
          */
-        SynonymMatchQueryBuilder(Analyzer analyzer, MappedFieldType fieldType,
-                          boolean enablePositionIncrements, boolean autoGenerateSynonymsPhraseQuery) {
+        DeluxeMatchQueryBuilder(Analyzer analyzer, MappedFieldType fieldType,
+                                boolean enablePositionIncrements, boolean autoGenerateSynonymsPhraseQuery) {
             super(analyzer);
             this.fieldType = fieldType;
             setEnablePositionIncrements(enablePositionIncrements);
@@ -443,15 +442,20 @@ public class DeluxeMatchQuery {
             stream.reset();
             List<TermAndBoost> terms = new ArrayList<>();
             while (stream.incrementToken()) {
-                String termType = packedTokenAtt.type();
-                float boost = DEFAULT_SYNONYM_BOOST;
-                if ("SYNONYM".equalsIgnoreCase(termType)) {
-                    boost = synonymBoost;
-                }
+                float boost = termBoost(packedTokenAtt);
                 terms.add(new TermAndBoost(new Term(field, termAtt.getBytesRef()), boost));
             }
 
             return newSynonymQuery(terms.toArray(new TermAndBoost[0]));
+        }
+
+        private float termBoost(PackedTokenAttributeImpl packedTokenAtt) {
+            String termType = packedTokenAtt.type();
+            float boost = DEFAULT_SYNONYM_BOOST;
+            if ("SYNONYM".equalsIgnoreCase(termType)) {
+                boost = synonymBoost;
+            }
+            return boost;
         }
 
         private Query createQuery(String field, String queryText, Type type, BooleanClause.Occur operator, int phraseSlop) {
@@ -609,11 +613,7 @@ public class DeluxeMatchQuery {
             stream.reset();
             int lastOffset = 0;
             while (stream.incrementToken()) {
-                String termType = packedTokenAtt.type();
-                float boost = DEFAULT_SYNONYM_BOOST;
-                if ("SYNONYM".equalsIgnoreCase(termType)) {
-                    boost = synonymBoost;
-                }
+                float boost = termBoost(packedTokenAtt);
                 if (posIncrAtt.getPositionIncrement() != 0) {
                     add(q, field, currentQuery, operator, false);
                     currentQuery.clear();
@@ -840,7 +840,7 @@ public class DeluxeMatchQuery {
     }
 
     /**
-     * @deprecated See {@link SynonymMatchQueryBuilder#setCommonTermsCutoff(Float)} for more details
+     * @deprecated See {@link DeluxeMatchQueryBuilder#setCommonTermsCutoff(Float)} for more details
      */
     @Deprecated
     public void setCommonTermsCutoff(Float cutoff) {
