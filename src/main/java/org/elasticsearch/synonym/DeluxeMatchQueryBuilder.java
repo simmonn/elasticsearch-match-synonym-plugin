@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 import static org.elasticsearch.synonym.DeluxeMatchQuery.DEFAULT_SYNONYM_BOOST;
+import static org.elasticsearch.synonym.DeluxeMatchQuery.DEFAULT_TYPE;
 
 /**
  * Match query is a query that analyzes the text and constructs a query as the
@@ -71,6 +72,7 @@ public class DeluxeMatchQueryBuilder extends AbstractQueryBuilder<DeluxeMatchQue
     public static final ParseField QUERY_FIELD = new ParseField("query");
     public static final ParseField GENERATE_SYNONYMS_PHRASE_QUERY = new ParseField("auto_generate_synonyms_phrase_query");
     public static final ParseField SYNONYMS_BOOST_FIELD = new ParseField("synonym_boost");
+    public static final ParseField TYPE_FIELD = new ParseField("type");
     /** The name for the match query */
     public static final String NAME = "match_deluxe";
 
@@ -106,6 +108,8 @@ public class DeluxeMatchQueryBuilder extends AbstractQueryBuilder<DeluxeMatchQue
     private boolean autoGenerateSynonymsPhraseQuery = true;
 
     private float synonymBoost = DEFAULT_SYNONYM_BOOST;
+
+    private DeluxeMatchQuery.Type type = DEFAULT_TYPE;
 
     /**
      * Constructs a new match query.
@@ -150,6 +154,7 @@ public class DeluxeMatchQueryBuilder extends AbstractQueryBuilder<DeluxeMatchQue
             autoGenerateSynonymsPhraseQuery = in.readBoolean();
         }
         synonymBoost = in.readFloat();
+        type = DeluxeMatchQuery.Type.readFromStream(in);
     }
 
     @Override
@@ -178,6 +183,7 @@ public class DeluxeMatchQueryBuilder extends AbstractQueryBuilder<DeluxeMatchQue
             out.writeBoolean(autoGenerateSynonymsPhraseQuery);
         }
         out.writeFloat(synonymBoost);
+        type.writeTo(out);
     }
 
     /** Returns the field name used in this query. */
@@ -376,12 +382,21 @@ public class DeluxeMatchQueryBuilder extends AbstractQueryBuilder<DeluxeMatchQue
         return autoGenerateSynonymsPhraseQuery;
     }
 
-    public float getSynonymBoost() {
+    public float synonymBoost() {
         return synonymBoost;
     }
 
     public DeluxeMatchQueryBuilder synonymBoost(float synonymBoost) {
         this.synonymBoost = synonymBoost;
+        return this;
+    }
+
+    public DeluxeMatchQuery.Type type() {
+        return type;
+    }
+
+    public DeluxeMatchQueryBuilder type(DeluxeMatchQuery.Type type) {
+        this.type = type;
         return this;
     }
 
@@ -415,6 +430,7 @@ public class DeluxeMatchQueryBuilder extends AbstractQueryBuilder<DeluxeMatchQue
         }
         builder.field(GENERATE_SYNONYMS_PHRASE_QUERY.getPreferredName(), autoGenerateSynonymsPhraseQuery);
         builder.field(SYNONYMS_BOOST_FIELD.getPreferredName(), synonymBoost);
+        builder.field(TYPE_FIELD.getPreferredName(), type);
         printBoostAndQueryName(builder);
         builder.endObject();
         builder.endObject();
@@ -442,7 +458,8 @@ public class DeluxeMatchQueryBuilder extends AbstractQueryBuilder<DeluxeMatchQue
         matchQuery.setZeroTermsQuery(zeroTermsQuery);
         matchQuery.setAutoGenerateSynonymsPhraseQuery(autoGenerateSynonymsPhraseQuery);
         matchQuery.setSynonymBoost(synonymBoost);
-        Query query = matchQuery.parse(DeluxeMatchQuery.Type.BOOLEAN, fieldName, value);
+        matchQuery.setType(type);
+        Query query = matchQuery.parse(type, fieldName, value);
         return Queries.maybeApplyMinimumShouldMatch(query, minimumShouldMatch);
     }
 
@@ -462,14 +479,15 @@ public class DeluxeMatchQueryBuilder extends AbstractQueryBuilder<DeluxeMatchQue
                 Objects.equals(zeroTermsQuery, other.zeroTermsQuery) &&
                 Objects.equals(cutoffFrequency, other.cutoffFrequency) &&
                 Objects.equals(autoGenerateSynonymsPhraseQuery, other.autoGenerateSynonymsPhraseQuery) &&
-                Objects.equals(synonymBoost, other.synonymBoost);
+                Objects.equals(synonymBoost, other.synonymBoost) &&
+                Objects.equals(type,other.type);
     }
 
     @Override
     protected int doHashCode() {
         return Objects.hash(fieldName, value, operator, analyzer,
                 fuzziness, prefixLength, maxExpansions, minimumShouldMatch,
-                fuzzyRewrite, lenient, fuzzyTranspositions, zeroTermsQuery, cutoffFrequency, autoGenerateSynonymsPhraseQuery, synonymBoost);
+                fuzzyRewrite, lenient, fuzzyTranspositions, zeroTermsQuery, cutoffFrequency, autoGenerateSynonymsPhraseQuery, synonymBoost, type);
     }
 
     @Override
@@ -496,6 +514,7 @@ public class DeluxeMatchQueryBuilder extends AbstractQueryBuilder<DeluxeMatchQue
         float synonymBoost = DEFAULT_SYNONYM_BOOST;
         String queryName = null;
         String currentFieldName = null;
+        DeluxeMatchQuery.Type type = DEFAULT_TYPE;
         XContentParser.Token token;
         while ((token = parser.nextToken()) != XContentParser.Token.END_OBJECT) {
             if (token == XContentParser.Token.FIELD_NAME) {
@@ -547,6 +566,8 @@ public class DeluxeMatchQueryBuilder extends AbstractQueryBuilder<DeluxeMatchQue
                             autoGenerateSynonymsPhraseQuery = parser.booleanValue();
                         } else if (SYNONYMS_BOOST_FIELD.match(currentFieldName, parser.getDeprecationHandler())){
                             synonymBoost = parser.floatValue();
+                        } else if (TYPE_FIELD.match(currentFieldName, parser.getDeprecationHandler())) {
+                            type = DeluxeMatchQuery.Type.fromString(parser.text());
                         } else {
                             throw new ParsingException(parser.getTokenLocation(),
                                     "[" + NAME + "] query does not support [" + currentFieldName + "]");
@@ -584,9 +605,10 @@ public class DeluxeMatchQueryBuilder extends AbstractQueryBuilder<DeluxeMatchQue
         }
         matchQuery.zeroTermsQuery(zeroTermsQuery);
         matchQuery.autoGenerateSynonymsPhraseQuery(autoGenerateSynonymsPhraseQuery);
-        matchQuery.synonymBoost(synonymBoost);
         matchQuery.queryName(queryName);
         matchQuery.boost(boost);
+        matchQuery.synonymBoost(synonymBoost);
+        matchQuery.type(type);
         return matchQuery;
     }
 

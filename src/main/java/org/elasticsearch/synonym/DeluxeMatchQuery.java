@@ -52,14 +52,12 @@ import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.mapper.KeywordFieldMapper;
 import org.elasticsearch.index.mapper.MappedFieldType;
 import org.elasticsearch.index.mapper.TextFieldMapper;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryShardContext;
 import org.elasticsearch.index.query.support.QueryParsers;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static org.elasticsearch.common.lucene.search.Queries.newLenientFieldQuery;
@@ -106,6 +104,10 @@ public class DeluxeMatchQuery {
             throw new ElasticsearchException("unknown serialized type [" + ord + "]");
         }
 
+        public static Type fromString(String op) {
+            return valueOf(op.toUpperCase(Locale.ROOT));
+        }
+
         @Override
         public void writeTo(StreamOutput out) throws IOException {
             out.writeVInt(this.ordinal);
@@ -147,6 +149,8 @@ public class DeluxeMatchQuery {
 
     public static final boolean DEFAULT_LENIENCY = false;
 
+    public static final Type DEFAULT_TYPE = Type.BOOLEAN;
+
     public static final ZeroTermsQuery DEFAULT_ZERO_TERMS_QUERY = ZeroTermsQuery.NONE;
 
     protected final QueryShardContext context;
@@ -181,6 +185,8 @@ public class DeluxeMatchQuery {
     protected boolean autoGenerateSynonymsPhraseQuery = true;
 
     protected float synonymBoost = DEFAULT_SYNONYM_BOOST;
+
+    protected Type type = DEFAULT_TYPE;
 
     public DeluxeMatchQuery(QueryShardContext context) {
         this.context = context;
@@ -451,11 +457,11 @@ public class DeluxeMatchQuery {
 
         private float termBoost(PackedTokenAttributeImpl packedTokenAtt) {
             String termType = packedTokenAtt.type();
-            float boost = DEFAULT_SYNONYM_BOOST;
             if ("SYNONYM".equalsIgnoreCase(termType)) {
-                boost = synonymBoost;
+                return synonymBoost;
+            } else {
+                return 1.0F;
             }
-            return boost;
         }
 
         private Query createQuery(String field, String queryText, Type type, BooleanClause.Occur operator, int phraseSlop) {
@@ -890,5 +896,13 @@ public class DeluxeMatchQuery {
 
     public void setSynonymBoost(float synonymBoost) {
         this.synonymBoost = synonymBoost;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 }
