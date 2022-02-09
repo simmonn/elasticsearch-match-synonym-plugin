@@ -1,5 +1,5 @@
-####该插件为增强版match,在matchquery的基础上增加了对同义词权重的调整,使得原词比同义词的分数高
-query阶段通过tokenstream获取setting中的同义词配置,判断出分词出来的是否为同义词,若为同义词,则降权
+#### 该插件为增强版match,在matchquery的基础上增加了对同义词权重的控制（synonym_boost设置同义词权重值，默认为0.9），以解决检索到的同义词可能会排在检索词前面的问题
+# query阶段通过tokenstream获取setting中的同义词配置,判断出分词出来的是否为同义词,若为同义词,则降权
 ```json
 PUT /test_synonym
 {
@@ -56,8 +56,7 @@ POST test_synonym/_doc
 }
 
 
-# 无论使用 term 还是 match，使用同一词字段可以全部召回
-# 但是无法区分原始词，还是同义词召回，并且在评分上没有区别对待
+# 无论使用 term 还是 match，使用同一词字段可以全部召回,但是无法区分原始词，还是同义词召回，并且在评分上没有区别对待
 GET test_synonym/_search
 {
   "query": {
