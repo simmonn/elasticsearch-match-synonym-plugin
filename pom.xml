@@ -6,10 +6,10 @@
 
     <groupId>top.simmon</groupId>
     <artifactId>match-deluxe</artifactId>
-    <version>7.10.2</version>
+    <version>${elasticsearch.version}</version>
 
     <properties>
-        <elasticsearch.version>${project.version}</elasticsearch.version>
+        <elasticsearch.version>7.10.2</elasticsearch.version>
         <maven.compiler.target>1.8</maven.compiler.target>
         <elasticsearch.assembly.descriptor>${project.basedir}/src/main/assemblies/plugin.xml</elasticsearch.assembly.descriptor>
         <elasticsearch.plugin.name>match-deluxe</elasticsearch.plugin.name>
