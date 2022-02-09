@@ -1,5 +1,11 @@
 #### 该插件为增强版match,在matchquery的基础上增加了对同义词权重的控制（synonym_boost设置同义词权重值，默认为0.9），以解决检索到的同义词可能会排在检索词前面的问题
 #### query阶段通过tokenstream获取setting中的同义词配置,判断出分词出来的是否为同义词,若为同义词,则降权
+
+###注意：不要在query阶段和index阶段同时配置同义词分析器，因为该插件只是对query阶段进行改造，同时设置会导致降权失败！！！！
+官方也不建议同时启用
+> 
+Using the same synonym token filter at both index time and search time is redundant. If, at index time, we replace English with the two terms english and british, then at search time we need to search for only one of those terms. Alternatively, if we don’t use synonyms at index time, then at search time, we would need to convert a query for English into a query for english OR british
+
 ```
 PUT /test_synonym
 {
