@@ -143,7 +143,7 @@ public class DeluxeMatchQuery {
         }
     }
 
-    public static final float DEFAULT_SYNONYM_BOOST = 0.9F;
+    public static final float DEFAULT_SYNONYM_BOOST = 1.0F;
 
     public static final int DEFAULT_PHRASE_SLOP = 0;
 
@@ -442,20 +442,22 @@ public class DeluxeMatchQuery {
         @Override
         protected Query analyzeBoolean(String field, TokenStream stream) throws IOException {
             TermToBytesRefAttribute termAtt = stream.getAttribute(TermToBytesRefAttribute.class);
-            BoostAttribute boostAtt = stream.addAttribute(BoostAttribute.class);
-            PackedTokenAttributeImpl packedTokenAtt = (PackedTokenAttributeImpl) termAtt;
 
             stream.reset();
             List<TermAndBoost> terms = new ArrayList<>();
             while (stream.incrementToken()) {
-                float boost = termBoost(packedTokenAtt);
+                float boost = termBoost(termAtt);
                 terms.add(new TermAndBoost(new Term(field, termAtt.getBytesRef()), boost));
             }
 
             return newSynonymQuery(terms.toArray(new TermAndBoost[0]));
         }
 
-        private float termBoost(PackedTokenAttributeImpl packedTokenAtt) {
+        private float termBoost(TermToBytesRefAttribute termAtt) {
+            if (!(termAtt instanceof PackedTokenAttributeImpl)) {
+                return DEFAULT_SYNONYM_BOOST;
+            }
+            PackedTokenAttributeImpl packedTokenAtt = (PackedTokenAttributeImpl) termAtt;
             String termType = packedTokenAtt.type();
             if ("SYNONYM".equalsIgnoreCase(termType)) {
                 return synonymBoost;
@@ -615,16 +617,15 @@ public class DeluxeMatchQuery {
             TermToBytesRefAttribute termAtt = stream.getAttribute(TermToBytesRefAttribute.class);
             PositionIncrementAttribute posIncrAtt = stream.getAttribute(PositionIncrementAttribute.class);
             OffsetAttribute offsetAtt = stream.addAttribute(OffsetAttribute.class);
-            PackedTokenAttributeImpl packedTokenAtt = (PackedTokenAttributeImpl) termAtt;
             stream.reset();
             int lastOffset = 0;
             while (stream.incrementToken()) {
-                float boost = termBoost(packedTokenAtt);
+                float boost = termBoost(termAtt);
                 if (posIncrAtt.getPositionIncrement() != 0) {
                     add(q, field, currentQuery, operator, false);
                     currentQuery.clear();
                 }
-                currentQuery.add(new TermAndBoost(new Term(field, termAtt.getBytesRef()),boost));
+                currentQuery.add(new TermAndBoost(new Term(field, termAtt.getBytesRef()), boost));
                 lastOffset = offsetAtt.endOffset();
             }
             stream.end();

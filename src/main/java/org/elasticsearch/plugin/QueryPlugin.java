@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * 插件注册入口
  */
-public class ESQueryPlugin extends Plugin implements SearchPlugin {
+public class QueryPlugin extends Plugin implements SearchPlugin {
 
     @Override
     public List<QuerySpec<?>> getQueries() {
